@@ -1,69 +1,347 @@
-import Image from "next/image";
+"use client";
+
+import { MapPin, Info, User, Users, CheckCircle, Coffee } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+
+const TypewriterText = ({ text, className }: { text: string; className?: string }) => {
+  const characters = text.split("");
+  return (
+    <motion.span
+      className={className}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={{
+        visible: { transition: { staggerChildren: 0.05 } },
+        hidden: {},
+      }}
+    >
+      {characters.map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1 },
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
 
 export default function Home() {
+  const [formData, setFormData] = useState({ name: "", group: "" });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: formData.name, group: formData.group }),
+    });
+
+    const data = await res.json();
+    setIsLoading(false);
+
+    if (res.ok && data.success) {
+      setIsSubmitted(true);
+      setFormData({ name: "", group: "" });
+    } else {
+      alert(data.error || "Terjadi kesalahan. Silakan coba lagi.");
+    }
+  };
+
+  const fadeUpVariant = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="min-h-screen bg-background font-sans">
+      {/* HEADER / NAV */}
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-coffee-cream/50 shadow-sm"
+      >
+        <div className="max-w-5xl mx-auto px-6 py-2 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Logo" className="h-20 w-auto object-contain" />
+            <div className="flex flex-col leading-tight">
+              <span className="font-extrabold text-[#5c1a1f] text-base md:text-lg">PPG Gorontalo</span>
+              <span className="text-xs text-coffee-medium font-medium">Penggerak Pembina Generus</span>
+            </div>
+          </div>
+          <nav className="hidden md:flex gap-6 text-sm font-medium text-coffee-medium">
+            <a href="#about" className="hover:text-[#5c1a1f] transition-colors">Tentang</a>
+            <a href="#register" className="hover:text-[#5c1a1f] transition-colors">Registrasi</a>
+            <a href="#location" className="hover:text-[#5c1a1f] transition-colors">Lokasi</a>
+          </nav>
+          <a href="#register" className="bg-[#5c1a1f] text-white px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-[#4a1519] transition-colors">
+            Daftar
+          </a>
+        </div>
+      </motion.header>
+
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 px-6 min-h-[90vh] flex flex-col justify-center items-center text-center">
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-coffee-cream/30 to-background z-10" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop"
+            alt="Coffee preparation"
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto w-full flex flex-col items-center">
+          <motion.span
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="inline-block py-1 px-3 rounded-full bg-[#5c1a1f]/10 text-[#5c1a1f] text-sm font-bold mb-6"
+          >
+            Generus Gorontalo
+          </motion.span>
+
+          <h1 className="text-4xl md:text-6xl font-extrabold text-coffee-dark tracking-tight mb-6 leading-tight max-w-3xl">
+            <TypewriterText text="Workshop Kemandirian " />
+            <br />
+            <span className="text-[#5c1a1f]">
+              <TypewriterText text="Barista" />
+            </span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1.5 }}
+            className="text-lg md:text-xl text-coffee-medium mb-10 max-w-2xl mx-auto"
+          >
+            Punya mimpi kerja di coffee shop hits atau malahan mau buka kedai kopi sendiri?
+            Yuk, wujudkan lewat Pelatihan Barista.
+            Daripada cuma nongkrong dan buang waktu, mending skill ngopi kamu diasah langsung sama ahlinya.
+          </motion.p>
+
+          {/* JADWAL & LOKASI INFO BOX */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.8 }}
+            className="bg-[#5c1a1f] p-6 rounded-2xl flex flex-col gap-6 text-left w-full max-w-lg mx-auto shadow-xl"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center justify-center border border-white/20 rounded-xl w-14 h-14 bg-white/5 shrink-0">
+                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-wider">SEP</span>
+                <span className="text-lg font-bold text-white leading-none">26</span>
+              </div>
+              <div>
+                <p className="font-bold text-white text-lg">Sabtu</p>
+                <p className="text-gray-300 text-sm">15.00 wita - selesai</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center justify-center border border-white/20 rounded-xl w-14 h-14 bg-white/5 shrink-0">
+                <MapPin className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-white text-lg">Berdua Kopi Telaga</p>
+                <p className="text-gray-300 text-sm">Jl. Ahmad A. Wahab, Luhu, Kec. Telaga, Kabupaten Gorontalo, Gorontalo 96181</p>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* ABOUT SECTION */}
+      <section id="about" className="py-20 px-6 bg-white overflow-hidden">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeUpVariant}
+          >
+            <div className="inline-flex items-center gap-2 text-[#5c1a1f] font-semibold mb-4">
+              <Info className="w-5 h-5" />
+              <span>Tentang Acara</span>
+            </div>
+            <p className="text-coffee-medium mb-6 leading-relaxed">
+              Workshop ini dirancang buat teman-teman Generus LDII Gorontalo untuk memperdalam skill wirausaha dan membentuk karakter generasi muda yang mandiri serta produktif. Di sini kamu bakal belajar dari nol tentang:
+            </p>
+            <ul className="space-y-4">
+              {['Mengenal berbagai jenis biji kopi nusantara', 'Teknik dasar manual brew', 'penggunaan mesin espresso', 'Dasar latte art biar makin aesthetic'].map((item, i) => (
+                <li key={i} className="flex items-center gap-3 text-coffee-dark font-medium">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="relative h-[400px] rounded-2xl overflow-hidden shadow-xl border-4 border-[#5c1a1f]/10"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=1974&auto=format&fit=crop"
+              alt="Barista at work"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* REGISTRATION & LOCATION SECTION */}
+      <section className="py-20 px-6 bg-coffee-cream/30">
+        <div className="max-w-5xl mx-auto flex flex-col gap-12">
+
+          {/* FORM REGISTRASI */}
+          <motion.div
+            id="register"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeUpVariant}
+            className="bg-white rounded-3xl p-8 md:p-10 shadow-xl border border-gray-100 max-w-2xl w-full mx-auto"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-coffee-dark mb-2">Buruan Daftar</h2>
+              <p className="text-coffee-medium">Hanya tersedia untuk 50 peserta. Daftar sekarang!</p>
+            </div>
+
+            {isSubmitted ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-green-50 border border-green-200 p-6 rounded-2xl text-center space-y-4"
+              >
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto text-white shadow-md">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-green-800">Pendaftaran Berhasil!</h3>
+                <p className="text-sm text-green-700">
+                  Terima kasih telah mendaftar. Kami akan mengirimkan detail acara ke kontak Anda.
+                </p>
+                <button
+                  onClick={() => setIsSubmitted(false)}
+                  className="mt-4 text-sm font-semibold underline text-green-600 hover:text-green-800"
+                >
+                  Daftar untuk peserta lain
+                </button>
+              </motion.div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-bold text-coffee-dark mb-2">
+                    Nama Lengkap
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5c1a1f] sm:text-sm transition-shadow"
+                      placeholder="Masukkan nama Anda"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-coffee-dark mb-2">
+                    Kelompok
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Users className="h-5 w-5 text-gray-400" />
+                    </div>
+                    {/* Diubah dari Select menjadi Input Teks */}
+                    <input
+                      type="text"
+                      required
+                      value={formData.group}
+                      onChange={(e) => setFormData({ ...formData, group: e.target.value })}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5c1a1f] sm:text-sm transition-shadow"
+                      placeholder="Masukkan kelompok"
+                    />
+                  </div>
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-md text-sm font-bold text-white bg-[#5c1a1f] hover:bg-[#4a1519] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5c1a1f] transition-colors disabled:opacity-70"
+                >
+                  {isLoading ? "Memproses..." : "Daftar Workshop"}
+                </motion.button>
+              </form>
+            )}
+          </motion.div>
+
+          {/* LOKASI */}
+          <motion.div
+            id="location"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeUpVariant}
+            className="max-w-2xl w-full mx-auto"
+          >
+            <div className="bg-[#5c1a1f] p-6 rounded-2xl w-full shadow-xl">
+              <h3 className="text-white text-lg font-bold border-b border-white/20 pb-3 mb-4">Lokasi</h3>
+              <p className="text-gray-300 text-sm mb-6">Jl. Ahmad A. Wahab, Luhu, Kec. Telaga, Kabupaten Gorontalo, Gorontalo 96181</p>
+
+              <div className="w-full h-[250px] rounded-xl overflow-hidden shadow-sm border border-white/10">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.6120098244633!2d123.04008300000001!3d0.5826713!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x32792dadbe212453%3A0x16c206f1320f8f7d!2sBerdua%20Kopi%20Telaga!5e0!3m2!1sid!2sid!4v1789564468887!5m2!1sid!2sid"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-[#2d1810] py-8 px-6 border-t border-white/10">
+        <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
+          <div className="flex items-center gap-2 mb-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Logo" className="h-16 w-auto object-contain bg-white/10 rounded-full p-2" />
+          </div>
+          <p className="text-coffee-cream/60 text-sm">
+            &copy; {new Date().getFullYear()} PPG Bidang Kemandirian
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </footer>
     </div>
   );
 }
