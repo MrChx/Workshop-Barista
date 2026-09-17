@@ -147,7 +147,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="font-bold text-white text-lg">Sabtu</p>
-                <p className="text-gray-300 text-sm">15.00 wita - selesai</p>
+                <p className="text-gray-300 text-sm">15.00 wita - 22.00 wita</p>
               </div>
             </div>
 
