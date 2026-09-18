@@ -10,18 +10,26 @@ function getSupabase() {
 
 export async function POST(request: NextRequest) {
   const supabase = getSupabase();
-  const { name, group } = await request.json();
+  const { name, group, age } = await request.json();
 
-  if (!name || !group) {
+  if (!name || !group || !age) {
     return NextResponse.json(
-      { error: "Nama dan kelompok wajib diisi" },
+      { error: "Nama, kelompok, dan usia wajib diisi" },
+      { status: 400 }
+    );
+  }
+
+  const parsedAge = Number(age);
+  if (isNaN(parsedAge) || parsedAge <= 0 || parsedAge > 120) {
+    return NextResponse.json(
+      { error: "Usia tidak valid" },
       { status: 400 }
     );
   }
 
   const { data, error } = await supabase
     .from("participants")
-    .insert([{ name, group }])
+    .insert([{ name, group, age: parsedAge }])
     .select()
     .single();
 

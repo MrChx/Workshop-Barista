@@ -9,5 +9,6 @@ export type Participant = {
   id: number;
   name: string;
   group: string;
+  age: number;
   created_at: string;
 };

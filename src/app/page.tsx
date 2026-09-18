@@ -33,7 +33,7 @@ const TypewriterText = ({ text, className }: { text: string; className?: string 
 };
 
 export default function Home() {
-  const [formData, setFormData] = useState({ name: "", group: "" });
+  const [formData, setFormData] = useState({ name: "", group: "", age: "" });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -44,7 +44,7 @@ export default function Home() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: formData.name, group: formData.group }),
+      body: JSON.stringify({ name: formData.name, group: formData.group, age: Number(formData.age) }),
     });
 
     const data = await res.json();
@@ -52,7 +52,7 @@ export default function Home() {
 
     if (res.ok && data.success) {
       setIsSubmitted(true);
-      setFormData({ name: "", group: "" });
+      setFormData({ name: "", group: "", age: "" });
     } else {
       alert(data.error || "Terjadi kesalahan. Silakan coba lagi.");
     }
@@ -283,6 +283,30 @@ export default function Home() {
                       onChange={(e) => setFormData({ ...formData, group: e.target.value })}
                       className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5c1a1f] sm:text-sm transition-shadow"
                       placeholder="Masukkan kelompok"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-coffee-dark mb-2">
+                    Usia
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Coffee className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      required
+                      value={formData.age}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        setFormData({ ...formData, age: val });
+                      }}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5c1a1f] sm:text-sm transition-shadow"
+                      placeholder="Masukkan usia Anda"
                     />
                   </div>
                 </div>
